@@ -4,4 +4,9 @@
     justify-content: center;
     align-items: center;
     opacity: .8;
+    font-size: .4rem
+}
+
+.Tilt img {
+    width: 50px;
 }

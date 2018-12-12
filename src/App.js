@@ -13,14 +13,86 @@ const app = new Clarifai.App({
   apiKey: clarifai.api
 });
 
+const particleOptions = {
+  particles: {
+    number: {
+      value: 200,
+      density: {
+        enable: false
+      }
+    },
+    size: {
+      value: 10,
+      random: true,
+      anim: {
+        speed: 4,
+        size_min: 0.3
+      }
+    },
+    line_linked: {
+      enable: false
+    },
+    move: {
+      random: true,
+      speed: 1,
+      direction: "top",
+      out_mode: "out"
+    }
+  },
+  interactivity: {
+    events: {
+      onhover: {
+        enable: true,
+        mode: "bubble"
+      },
+      onclick: {
+        enable: true,
+        mode: "repulse"
+      }
+    },
+    modes: {
+      bubble: {
+        distance: 250,
+        duration: 2,
+        size: 0,
+        opacity: 0
+      },
+      repulse: {
+        distance: 400,
+        duration: 4
+      }
+    }
+  }
+};
+
 class App extends Component {
   constructor() {
     super();
     this.state = {
       input: "",
-      imageUrl: ""
+      imageUrl: "",
+      box: {}
     };
   }
+
+  calculateFaceLocation = data => {
+    const clarifaiFace =
+      data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById("inputimage");
+    const width = Number(image.width);
+    const height = Number(image.height);
+    return {
+      leftCol: clarifaiFace.left_col * width,
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - clarifaiFace.right_col * width,
+      bottomRow: height - clarifaiFace.bottom_row * height
+    };
+  };
+
+  displayFaceBox = box => {
+    console.log(box);
+    this.setState({ box });
+  };
 
   onInputChange = e => {
     this.setState({ input: e.target.value });
@@ -28,70 +100,16 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
-    app.models.predict(Clarifai.DEMOGRAPHICS_MODEL, this.state.input).then(
-      function(response) {
-        console.log(
-          response.outputs[0].data.regions[0].region_info.bounding_box
-        );
-      },
-      function(err) {
-        // there was an error
-      }
-    );
+    app.models
+      .predict(Clarifai.DEMOGRAPHICS_MODEL, this.state.input)
+      .then(response => {
+        this.displayFaceBox(this.calculateFaceLocation(response));
+      })
+      .catch(err => console.log(err));
   };
 
   render() {
-    const particleOptions = {
-      particles: {
-        number: {
-          value: 200,
-          density: {
-            enable: false
-          }
-        },
-        size: {
-          value: 10,
-          random: true,
-          anim: {
-            speed: 4,
-            size_min: 0.3
-          }
-        },
-        line_linked: {
-          enable: false
-        },
-        move: {
-          random: true,
-          speed: 1,
-          direction: "top",
-          out_mode: "out"
-        }
-      },
-      interactivity: {
-        events: {
-          onhover: {
-            enable: true,
-            mode: "bubble"
-          },
-          onclick: {
-            enable: true,
-            mode: "repulse"
-          }
-        },
-        modes: {
-          bubble: {
-            distance: 250,
-            duration: 2,
-            size: 0,
-            opacity: 0
-          },
-          repulse: {
-            distance: 400,
-            duration: 4
-          }
-        }
-      }
-    };
+    const { box, imageUrl } = this.state;
 
     return (
       <div className="App">
@@ -103,7 +121,7 @@ class App extends Component {
           onInputChange={this.onInputChange}
           onButtonSubmit={this.onButtonSubmit}
         />
-        <FaceRecognition imageUrl={this.state.imageUrl} />
+        <FaceRecognition box={box} imageUrl={imageUrl} />
       </div>
     );
   }

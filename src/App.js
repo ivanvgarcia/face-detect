@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import SignIn from "./components/Auth/SignIn";
 import Navigation from "./components/Navigation/Navigation";
 import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
@@ -71,7 +72,8 @@ class App extends Component {
     this.state = {
       input: "",
       imageUrl: "",
-      box: {}
+      box: {},
+      route: "signin"
     };
   }
 
@@ -108,20 +110,29 @@ class App extends Component {
       .catch(err => console.log(err));
   };
 
+  onRouteChange = route => this.setState({ route });
+
   render() {
     const { box, imageUrl } = this.state;
 
     return (
       <div className="App">
         <Particles className="particles" params={particleOptions} />
-        <Navigation />
-        <Logo />
-        <Rank />
-        <ImageLinkForm
-          onInputChange={this.onInputChange}
-          onButtonSubmit={this.onButtonSubmit}
-        />
-        <FaceRecognition box={box} imageUrl={imageUrl} />
+        <Navigation onRouteChange={this.onRouteChange} />
+
+        {this.state.route === "signin" ? (
+          <SignIn onRouteChange={this.onRouteChange} />
+        ) : (
+          <React.Fragment>
+            <Logo />
+            <Rank />
+            <ImageLinkForm
+              onInputChange={this.onInputChange}
+              onButtonSubmit={this.onButtonSubmit}
+            />
+            <FaceRecognition box={box} imageUrl={imageUrl} />
+          </React.Fragment>
+        )}
       </div>
     );
   }

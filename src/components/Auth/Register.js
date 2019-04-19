@@ -8,7 +8,7 @@ const Register = ({ onRouteChange, loadUser }) => {
   const handleRegisterUser = event => {
     event.preventDefault();
 
-    fetch("http://localhost:4000/auth/register", {
+    fetch("https://face-detect-node-api.herokuapp.com/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -17,11 +17,9 @@ const Register = ({ onRouteChange, loadUser }) => {
     })
       .then(response => response.json())
       .then(user => {
-        if (user) {
+        if (user.id) {
           loadUser(user);
           onRouteChange("home");
-        } else {
-          console.log("error");
         }
       });
   };

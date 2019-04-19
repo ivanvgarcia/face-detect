@@ -7,7 +7,7 @@ const SignIn = ({ onRouteChange, loadUser }) => {
   const handleSignInUser = event => {
     event.preventDefault();
 
-    fetch("http://localhost:4000/auth/login", {
+    fetch("https://face-detect-node-api.herokuapp.com/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

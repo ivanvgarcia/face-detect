@@ -8,12 +8,21 @@ import Rank from "./components/Rank/Rank";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import "./App.css";
 import Particles from "react-particles-js";
-import { clarifai } from "./config/keys";
-import Clarifai from "clarifai";
 
-const app = new Clarifai.App({
-  apiKey: clarifai.api
-});
+const initialState = {
+  input: "",
+  imageUrl: "",
+  box: {},
+  route: "signin",
+  isSignedIn: false,
+  user: {
+    id: "",
+    email: "",
+    name: "",
+    entries: 0,
+    joined: ""
+  }
+};
 
 const particleOptions = {
   particles: {
@@ -122,11 +131,19 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
-    app.models
-      .predict(Clarifai.DEMOGRAPHICS_MODEL, this.state.input)
+    fetch("https://face-detect-node-api.herokuapp.com/profile/imageurl", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+      .then(response => response.json())
       .then(response => {
         if (response) {
-          fetch("http://localhost:4000/profile/image", {
+          fetch("https://face-detect-node-api.herokuapp.com/profile/image", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json"
@@ -138,7 +155,8 @@ class App extends Component {
             .then(response => response.json())
             .then(count => {
               this.setState(Object.assign(this.state.user, { entries: count }));
-            });
+            })
+            .catch(console.log);
         }
         this.displayFaceBox(this.calculateFaceLocation(response));
       })
@@ -147,7 +165,7 @@ class App extends Component {
 
   onRouteChange = route => {
     if (route === "signout") {
-      this.setState({ isSignedIn: false });
+      this.setState(initialState);
     } else if (route === "home") {
       this.setState({ isSignedIn: true });
     }

@@ -7,7 +7,7 @@ const SignIn = ({ onRouteChange, loadUser }) => {
   const handleSignInUser = event => {
     event.preventDefault();
 
-    fetch("http://localhost:5000/auth/signin", {
+    fetch("http://localhost:4000/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

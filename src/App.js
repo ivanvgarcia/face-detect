@@ -126,7 +126,7 @@ class App extends Component {
       .predict(Clarifai.DEMOGRAPHICS_MODEL, this.state.input)
       .then(response => {
         if (response) {
-          fetch("http://localhost:5000/profile/image", {
+          fetch("http://localhost:4000/profile/image", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json"
@@ -157,7 +157,7 @@ class App extends Component {
 
   render() {
     const { box, imageUrl, isSignedIn, route } = this.state;
-    console.log(this.state);
+
     return (
       <div className="App">
         <Particles className="particles" params={particleOptions} />
